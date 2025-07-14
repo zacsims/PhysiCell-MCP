@@ -18,17 +18,29 @@ The PhysiCell MCP Server provides the following tools:
 
 1. **PhysiCell**: Install PhysiCell from https://github.com/MathCancer/PhysiCell
 2. **Python 3.8+**: Required for the MCP server
-3. **MCP SDK**: Install with `pip install mcp`
+3. **uv**: Fast Python package manager (install from https://github.com/astral-sh/uv)
 
 ## Installation
 
-1. Clone or download the PhysiCell MCP server files
-2. Install the MCP Python SDK:
+1. Install uv if you haven't already:
    ```bash
-   pip install mcp
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+   Or on Windows:
+   ```powershell
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
    ```
 
-3. Ensure PhysiCell is installed and compiled
+2. Clone or download the PhysiCell MCP server files
+
+3. Create a virtual environment and install dependencies:
+   ```bash
+   uv venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   uv pip install -r requirements.txt
+   ```
+
+4. Ensure PhysiCell is installed and compiled
 
 ## Configuration
 
@@ -43,8 +55,8 @@ Add the following to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "physicell": {
-      "command": "python",
-      "args": ["/path/to/physicell_mcp_server.py", "--physicell-path", "/path/to/PhysiCell"],
+      "command": "uv",
+      "args": ["run", "python", "/path/to/physicell_mcp_server.py", "--physicell-path", "/path/to/PhysiCell"],
       "env": {
         "PYTHONUNBUFFERED": "1"
       }
@@ -54,6 +66,24 @@ Add the following to your Claude Desktop configuration file:
 ```
 
 Replace `/path/to/physicell_mcp_server.py` with the actual path to the server script, and `/path/to/PhysiCell` with your PhysiCell installation directory.
+
+### Alternative: Using uvx for isolated execution
+
+You can also run the server in an isolated environment using `uvx`:
+
+```json
+{
+  "mcpServers": {
+    "physicell": {
+      "command": "uvx",
+      "args": ["--from", "/path/to/physicell-mcp-server", "physicell-mcp-server", "--physicell-path", "/path/to/PhysiCell"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}
+```
 
 ## Usage Examples
 
@@ -87,18 +117,50 @@ Once the server is running and connected to Claude, you can use natural language
 You can test the server standalone:
 
 ```bash
-python physicell_mcp_server.py --physicell-path /path/to/PhysiCell
+uv run python physicell_mcp_server.py --physicell-path /path/to/PhysiCell
+```
+
+### Installing Additional Dependencies
+
+To add new dependencies:
+
+```bash
+uv pip install package-name
+uv pip freeze > requirements.txt
 ```
 
 ### Adding New Tools
 
 To add new tools, modify the `list_tools()` method to define the tool schema and implement the corresponding handler in `call_tool()`.
 
+## Quick Start with uv
+
+For a complete setup from scratch:
+
+```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Clone the repository (or download the files)
+git clone <repository-url>
+cd physicell-mcp-server
+
+# Set up Python environment and install dependencies
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -r requirements.txt
+
+# Test the server
+uv run python physicell_mcp_server.py --help
+```
+
 ## Troubleshooting
 
 1. **PhysiCell not found**: Ensure the `--physicell-path` argument points to your PhysiCell installation
 2. **Compilation errors**: Make sure you have all PhysiCell dependencies installed (OpenMP, etc.)
 3. **Permission errors**: Ensure you have write permissions in the PhysiCell directory
+4. **uv not found**: Make sure uv is installed and in your PATH
+5. **Module not found**: Ensure you've activated the virtual environment and installed dependencies
 
 ## Resources
 
@@ -121,6 +183,7 @@ The server provides access to:
 - Substrate and microenvironment analysis
 - Parameter sweep capabilities
 - Integration with PhysiCell Studio
+- Package distribution via PyPI for easier `uvx` usage
 
 ## License
 
