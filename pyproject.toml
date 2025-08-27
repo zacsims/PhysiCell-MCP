@@ -1,10 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "physicell-mcp"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "Intelligent MCP server for generating biologically realistic PhysiCell simulations"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "httpx>=0.28.1",
     "mcp[cli]>=1.11.0",
+]
+
+[project.scripts]
+physicell-mcp = "physicell_mcp_server:main"
+physicell-bio-mcp = "physicell_bio_mcp_server:main"
+
+[tool.setuptools]
+py-modules = [
+    "physicell_mcp_server",
+    "physicell_bio_mcp_server", 
+    "biological_knowledge"
 ]
